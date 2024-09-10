@@ -9,10 +9,10 @@ import java.util.UUID
 
 @Entity
 @Table(name = "mission")
-class Chat (
+class Mission (
     @Id
     @Column(nullable = false)
-    var id: String = UUID.randomUUID().toString(),
+    var id: String,
 
     @Column(nullable = false)
     val content: String

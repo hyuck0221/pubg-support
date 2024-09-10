@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Content</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #00FF00; /* 크로마키용 초록색 */
+        }
+        #content {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div id="content"></div>
+
+<script>
+    // API 호출
+    fetch('/api/mission/latest', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const contentElement = document.getElementById('content');
+        if (data.content !== null) {
+            contentElement.textContent = data.content;
+            contentElement.style.display = 'block';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+</script>
+
+</body>
+</html>
