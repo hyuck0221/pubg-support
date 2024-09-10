@@ -1,0 +1,43 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+  error:
+    include-message: always
+
+spring:
+  jackson:
+    time-zone: Asia/Seoul
+  datasource:
+    url: jdbc:mariadb://${db_url}/pubg_support?autoReconnect=true&rewriteBatchedStatements=true
+    username: ${db_username}
+    password: ${db_password}
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      generate-ddl: false
+      hibernate:
+        show_sql: true
+        default_batch_fetch_size: 50
+        format_sql: true
+
+springdoc:
+  api-docs:
+    enabled: true
+    groups:
+      enabled: true
+  cache:
+    disabled: false
+  use-fqn: true
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger-ui
+    display-request-duration: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+    doc-expansion : none
