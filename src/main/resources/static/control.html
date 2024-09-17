@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Panel</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #FFFFFF; /* 기본 흰색 배경 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            margin-top: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #mission-text {
+            font-size: 1.5rem; /* 일반 텍스트 크기로 줄임 */
+            font-weight: bold;
+            color: black; /* 글자 색은 기본적으로 검은색 */
+            white-space: pre-wrap; /* \n을 엔터 처리 */
+            word-wrap: break-word; /* 긴 단어를 줄바꿈 */
+        }
+
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+            padding: 10px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #f0f0f0;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #build-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        #build-button:disabled {
+            background-color: #A9A9A9; /* 비활성화 시 회색 */
+            cursor: not-allowed;
+        }
+
+        #status-text {
+            margin-left: 15px;
+            font-size: 1rem;
+            color: black;
+            visibility: hidden; /* 요청 중일 때만 표시 */
+        }
+
+        #response-text {
+            margin-top: 10px; /* 버튼 아래로 약간 간격 */
+            font-size: 1.2rem;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <button id="build-button">미션 생성</button>
+    <span id="status-text">생성 중...</span>
+</div>
+
+<div id="response-text"></div> <!-- 응답 내용을 표시할 영역 -->
+
+<div class="container">
+    <div id="mission-text">No mission yet...</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const missionText = document.getElementById('mission-text');
+        const buildButton = document.getElementById('build-button');
+        const statusText = document.getElementById('status-text');
+        const responseText = document.getElementById('response-text');
+
+        // 미션 생성 버튼 클릭 이벤트
+        buildButton.addEventListener('click', async () => {
+            buildButton.disabled = true; // 버튼 비활성화
+            statusText.style.visibility = 'visible'; // "생성 중" 표시
+            responseText.textContent = ''; // 응답 텍스트 초기화
+
+            try {
+                // API 요청
+                const response = await fetch('/api/mission/build/open-ai', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({}), // 필요한 데이터가 있다면 여기에 추가
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    responseText.textContent = data.content.replace(/\\n/g, '\n'); // 응답 내용 표시
+                    missionText.textContent = data.content.replace(/\\n/g, '\n'); // 중앙 미션 텍스트에도 표시
+                } else {
+                    responseText.textContent = 'Error: 미션 생성 실패'; // 실패 시 에러 메시지 표시
+                    missionText.textContent = 'Error: 미션 생성 실패';
+                }
+            } catch (error) {
+                responseText.textContent = 'Error: 네트워크 오류'; // 네트워크 오류 처리
+                missionText.textContent = 'Error: 네트워크 오류';
+            } finally {
+                buildButton.disabled = false; // 버튼 활성화
+                statusText.style.visibility = 'hidden'; // "생성 중" 숨김
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

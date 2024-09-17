@@ -3,46 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Content</title>
+    <title>Mission Display</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        body, html {
             margin: 0;
-            background-color: #00FF00; /* 크로마키용 초록색 */
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #00FF00; /* 크로마키 초록색 */
+            transition: background-color 0.5s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        #content {
-            font-size: 2rem;
+
+        .checkbox-container {
+            margin-top: 10px;
+            color: black;
+            font-size: 1rem;
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .container {
+            margin-top: 20px; /* 체크박스와 텍스트 사이 간격 */
+            width: 100%;
+            text-align: center;
+        }
+
+        #mission-text {
+            font-size: 3.5rem; /* 글자 크기를 약간 줄임 */
             font-weight: bold;
-            color: #333;
-            display: none;
+            color: white; /* 기본 글자 색은 흰색 */
+            white-space: pre-wrap; /* \n을 엔터 처리 */
+            word-wrap: break-word; /* 긴 단어를 줄바꿈 */
+        }
+
+        input[type="checkbox"] {
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
 
-<div id="content"></div>
+<div class="checkbox-container">
+    <input type="checkbox" id="chromakey-toggle">
+    <label for="chromakey-toggle">크로마키 제거</label>
+</div>
+
+<div class="container">
+    <div id="mission-text">Loading...</div>
+</div>
 
 <script>
-    // API 호출
-    fetch('/api/mission/latest', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        const contentElement = document.getElementById('content');
-        if (data.content !== null) {
-            contentElement.textContent = data.content;
-            contentElement.style.display = 'block';
-        }
-    })
-    .catch(error => console.error('Error:', error));
+    document.addEventListener('DOMContentLoaded', () => {
+        const missionText = document.getElementById('mission-text');
+        const chromakeyToggle = document.getElementById('chromakey-toggle');
+        const body = document.body;
+
+        // 크로마키 체크박스 클릭 시 배경 및 글자 색 변경
+        chromakeyToggle.addEventListener('change', (event) => {
+            if (event.target.checked) {
+                body.style.backgroundColor = '#FFFFFF'; // 크로마키 제거 (흰색)
+                missionText.style.color = '#000000'; // 글자색을 검은색으로 변경
+            } else {
+                body.style.backgroundColor = '#00FF00'; // 크로마키 적용 (초록색)
+                missionText.style.color = '#FFFFFF'; // 글자색을 흰색으로 변경
+            }
+        });
+
+        // SSE 연결
+        const eventSource = new EventSource('/api/mission/connect');
+
+        // 최초 연결 시 받는 데이터 처리
+        eventSource.addEventListener('connect_info', function (event) {
+            const data = JSON.parse(event.data);
+            missionText.textContent = data.latestMission.replace(/\\n/g, '\n'); // \n을 엔터로 변환
+        });
+
+        // 새로운 미션이 올 때 처리
+        eventSource.addEventListener('new_mission_info', function (event) {
+            const data = JSON.parse(event.data);
+            missionText.textContent = data.content.replace(/\\n/g, '\n'); // \n을 엔터로 변환
+        });
+    });
 </script>
 
 </body>

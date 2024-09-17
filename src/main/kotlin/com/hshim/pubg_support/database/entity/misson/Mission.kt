@@ -12,7 +12,7 @@ import java.util.UUID
 class Mission (
     @Id
     @Column(nullable = false)
-    var id: String,
+    var id: String = UUID.randomUUID().toString(),
 
     @Column(nullable = false)
     val content: String

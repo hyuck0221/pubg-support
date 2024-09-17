@@ -24,6 +24,12 @@ spring:
         show_sql: true
         default_batch_fetch_size: 50
         format_sql: true
+  ai:
+    openai:
+      api-key: ${openai_key}
+      chat:
+        options:
+          model: gpt-4o
 
 springdoc:
   api-docs:
